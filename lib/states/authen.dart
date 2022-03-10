@@ -11,20 +11,23 @@ class Authen extends StatefulWidget {
 }
 
 class _AuthenState extends State<Authen> {
-bool statusRedeye = true;
+  bool statusRedeye = true;
 
   @override
   Widget build(BuildContext context) {
     double size = MediaQuery.of(context).size.width;
     return Scaffold(
       body: SafeArea(
-        child: ListView(
-          children: [
-            buildImage(size),
-            buildAppName(),
-            buildUser(size),
-            buildPassword(size),
-          ],
+        child: GestureDetector(onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
+          behavior: HitTestBehavior.opaque,
+          child: ListView(
+            children: [
+              buildImage(size),
+              buildAppName(),
+              buildUser(size),
+              buildPassword(size),
+            ],
+          ),
         ),
       ),
     );
@@ -38,7 +41,8 @@ bool statusRedeye = true;
           margin: EdgeInsets.only(top: 16),
           width: size * 0.6,
           child: TextFormField(
-            decoration: InputDecoration(labelStyle: MyConstant().h3Style(),
+            decoration: InputDecoration(
+              labelStyle: MyConstant().h3Style(),
               labelText: 'User :',
               prefixIcon: Icon(Icons.account_circle_outlined),
               enabledBorder: OutlineInputBorder(
@@ -63,8 +67,26 @@ bool statusRedeye = true;
         Container(
           margin: EdgeInsets.only(top: 16),
           width: size * 0.6,
-          child: TextFormField(obscureText: statusRedeye,
-            decoration: InputDecoration(labelStyle: MyConstant().h3Style(),
+          child: TextFormField(
+            obscureText: statusRedeye,
+            decoration: InputDecoration(
+              suffixIcon: IconButton(
+                onPressed: () {
+                  setState(() {
+                    statusRedeye = !statusRedeye;
+                  });
+                },
+                icon: statusRedeye
+                    ? Icon(
+                        Icons.remove_red_eye_outlined,
+                        color: MyConstant.dark,
+                      )
+                    : Icon(
+                        Icons.remove_red_eye,
+                        color: MyConstant.dark,
+                      ),
+              ),
+              labelStyle: MyConstant().h3Style(),
               labelText: 'Password :',
               prefixIcon: Icon(Icons.lock_outline),
               enabledBorder: OutlineInputBorder(
