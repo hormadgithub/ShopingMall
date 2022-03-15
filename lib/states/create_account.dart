@@ -2,8 +2,12 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:shoppingmall/utility/my_constant.dart';
+import 'package:shoppingmall/utility/my_dialog.dart';
+import 'package:shoppingmall/widgets/shor_progress.dart';
 import 'package:shoppingmall/widgets/show_image.dart';
 import 'package:shoppingmall/widgets/show_title.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:geolocator/geolocator.dart';
 
 class CreateAccont extends StatefulWidget {
   const CreateAccont({Key? key}) : super(key: key);
@@ -15,6 +19,68 @@ class CreateAccont extends StatefulWidget {
 class _CreateAccontState extends State<CreateAccont> {
   String? typeUser; //? ยอมให้เป็น Null ได้
   File? file;
+  double? lat, lng;
+
+  @override
+  void initState() {
+    super.initState();
+    CheckPermission();
+  }
+
+  //รอผลลัพธ์ในอนาคต
+  Future<Null> CheckPermission() async {
+    bool locationService;
+    LocationPermission locationPermission;
+    //ต้องทำสิ่งที่ต้องได้ผลลัพธ์
+    locationService = await Geolocator.isLocationServiceEnabled();
+    if (locationService) {
+      //print('Service Location Open');
+
+      locationPermission = await Geolocator.checkPermission();
+      if (locationPermission == LocationPermission.denied) {
+        locationPermission = await Geolocator.requestPermission();
+        if (locationPermission == LocationPermission.deniedForever) {
+          MyDialog().alertLocationService(
+              context, 'ไม่อนุญาติแชร์ Location', 'โปรดแชร์ Location');
+        } else {
+          //Find LatLng
+          findLntLng();
+        }
+      } else {
+        if (locationPermission == LocationPermission.deniedForever) {
+          MyDialog().alertLocationService(
+              context, 'ไม่อนุญาติแชร์ Location', 'โปรดแชร์ Location');
+        } else {
+          //find LatLng
+          findLntLng();
+        }
+      }
+    } else {
+      print('Service Location Close');
+      MyDialog().alertLocationService(context, 'Location Servide Close',
+          'กรุณาเปิด Location Service ด้วยครับ');
+    }
+  }
+
+  Future<Null> findLntLng() async {
+    //print('findLatLng Work');
+    Position? position = await findPosition();
+    setState(() {
+      lat = position!.latitude;
+      lng = position.longitude;
+      print('lat = $lat, lng = $lng');
+    });
+  }
+
+  Future<Position?> findPosition() async {
+    Position position;
+    try {
+      position = await Geolocator.getCurrentPosition();
+      return position;
+    } catch (e) {
+      return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,42 +111,66 @@ class _CreateAccontState extends State<CreateAccont> {
             buildTitle('รูปภาพ'),
             buildSubTitle(),
             buildAvatar(size),
+            buildTitle('แสดงพิกัดที่คุณอยู่'),
+            buildMap()
           ],
         ),
       ),
     );
   }
 
+  Widget buildMap() => Container(
+        width: double.infinity,
+        height: 200,
+        child: lat==null ? ShowProgress():Text('lat = $lat, lng = $lng'),
+      );
+
+  Future<Null> chooseImage(ImageSource source) async {
+    try {
+      //ไม่รู้ว่า ตัวแปร Type เป็นอะไร
+      var result = await ImagePicker().getImage(
+        source: source,
+        maxWidth: 800,
+        maxHeight: 800,
+      );
+      setState(() {
+        file = File(result!.path);
+      });
+    } catch (e) {}
+  }
+
   Row buildAvatar(double size) {
     return Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //spaceBetween แบ่งช่องว่างของ children ให้ Auto
-            children: [
-              IconButton(
-                onPressed: () {},
-                icon: Icon(
-                  Icons.add_a_photo,
-                  size: 36,
-                  color: MyConstant.dark,
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.symmetric(vertical: 10),
-                width: size * .5,
-                //? ถ้าเป็นจริงทอันแรก ถ้าไม่จริงทำหลัง :  
-                child: file == null ? ShowImage(path: MyConstant.avatar) : Image.file(file!),
-              ),
-              IconButton(
-                onPressed: () {},
-                icon: Icon(
-                  Icons.add_photo_alternate,
-                  size: 36,
-                  color: MyConstant.dark,
-                ),
-              ),
-            ],
-          );
+      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      //spaceBetween แบ่งช่องว่างของ children ให้ Auto
+      children: [
+        IconButton(
+          onPressed: () => chooseImage(ImageSource.camera),
+          icon: Icon(
+            Icons.add_a_photo,
+            size: 36,
+            color: MyConstant.dark,
+          ),
+        ),
+        Container(
+          margin: EdgeInsets.symmetric(vertical: 10),
+          width: size * .5,
+          //? ถ้าเป็นจริงทอันแรก ถ้าไม่จริงทำหลัง :
+          child: file == null
+              ? ShowImage(path: MyConstant.avatar)
+              : Image.file(file!),
+        ),
+        IconButton(
+          onPressed: () => chooseImage(ImageSource.gallery),
+          icon: Icon(
+            Icons.add_photo_alternate,
+            size: 36,
+            color: MyConstant.dark,
+          ),
+        ),
+      ],
+    );
   }
 
   ShowTitle buildSubTitle() {
