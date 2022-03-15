@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shoppingmall/utility/my_constant.dart';
 import 'package:shoppingmall/utility/my_dialog.dart';
 import 'package:shoppingmall/widgets/shor_progress.dart';
@@ -20,6 +21,7 @@ class _CreateAccontState extends State<CreateAccont> {
   String? typeUser; //? ยอมให้เป็น Null ได้
   File? file;
   double? lat, lng;
+  final formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -87,6 +89,9 @@ class _CreateAccontState extends State<CreateAccont> {
     double size = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
+        actions: [
+          buildCreateNewAccount(),
+        ],
         title: Text('Create New Account'),
         backgroundColor: MyConstant.primary,
       ),
@@ -94,35 +99,76 @@ class _CreateAccontState extends State<CreateAccont> {
       body: GestureDetector(
         onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
         behavior: HitTestBehavior.opaque,
-        child: ListView(
-          padding: EdgeInsets.all(10),
-          children: [
-            buildTitle('ข้อมูลทั่วไป'),
-            buildName(size),
-            buildTitle('ชนิดของ User :'),
-            buildRadioBuyer(size),
-            buildRadioSeller(size),
-            buildRadioRider(size),
-            buildTitle('ข้อมูลพื้นฐาน'),
-            buildAddress(size),
-            buildPhone(size),
-            buildUser(size),
-            buildPassword(size),
-            buildTitle('รูปภาพ'),
-            buildSubTitle(),
-            buildAvatar(size),
-            buildTitle('แสดงพิกัดที่คุณอยู่'),
-            buildMap()
-          ],
+        child: Form(
+          key: formKey,
+         // child: ListView(
+            child: SingleChildScrollView(
+              child: Column(
+                      //  padding: EdgeInsets.all(10),
+              children: [
+                buildTitle('ข้อมูลทั่วไป'),
+                buildName(size),
+                buildTitle('ชนิดของ User :'),
+                buildRadioBuyer(size),
+                buildRadioSeller(size),
+                buildRadioRider(size),
+                buildTitle('ข้อมูลพื้นฐาน'),
+                buildAddress(size),
+                buildPhone(size),
+                buildUser(size),
+                buildPassword(size),
+                buildTitle('รูปภาพ'),
+                buildSubTitle(),
+                buildAvatar(size),
+                buildTitle('แสดงพิกัดที่คุณอยู่'),
+                buildMap()
+              ],
+                      ),
+            ),
         ),
       ),
     );
   }
 
+  IconButton buildCreateNewAccount() {
+    return IconButton(
+          onPressed: () {
+            if (formKey.currentState!.validate()) {
+               if (typeUser==null){
+                 //print('Non Choose Type User');
+                 MyDialog().normalDialog(context, 'ยังไม่ได้เลือกประเภทของ User', 'กรุณาเลือกประเภท User ก่อนนะครับ');
+               }else{
+                 print('Process Insert to Database');
+               }
+            }
+          },
+          icon: Icon(Icons.cloud_upload),
+        );
+  }
+
+//Set เป็นการเก็บ Object ของ Marker
+  Set<Marker> setMarker() => <Marker>[
+        Marker(
+          markerId: MarkerId('id'),
+          position: LatLng(lat!, lng!),
+          infoWindow:
+              InfoWindow(title: 'คุณอยู่ที่นี่', snippet: 'lat=$lat,Lng=$lng'),
+        ),
+      ].toSet();
+
   Widget buildMap() => Container(
         width: double.infinity,
-        height: 200,
-        child: lat==null ? ShowProgress():Text('lat = $lat, lng = $lng'),
+        height: 300,
+        child: lat == null
+            ? ShowProgress()
+            : GoogleMap(
+                initialCameraPosition: CameraPosition(
+                  target: LatLng(lat!, lng!),
+                  zoom: 16, //เห็นโลกคือ Zoom 1 ใกล้มากขึ้น ก็ให้เพิ่ม
+                ),
+                onMapCreated: (controller) {},
+                markers: setMarker(),
+              ),
       );
 
   Future<Null> chooseImage(ImageSource source) async {
@@ -273,6 +319,11 @@ Row buildName(double size) {
         margin: EdgeInsets.only(top: 10),
         width: size * 0.6,
         child: TextFormField(
+          validator: (value) {
+            if (value!.isEmpty) {
+              return 'กรุณาป้อน Name ด้วย';
+            } else {}
+          },
           decoration: InputDecoration(
             labelStyle: MyConstant().h3Style(),
             labelText: 'Name :',
@@ -299,7 +350,12 @@ Row buildPhone(double size) {
       Container(
         margin: EdgeInsets.only(top: 10),
         width: size * 0.6,
-        child: TextFormField(
+        child: TextFormField(keyboardType: TextInputType.phone,
+          validator: (value) {
+            if (value!.isEmpty) {
+              return 'กรุณาป้อน Phone ด้วย';
+            } else {}
+          },
           decoration: InputDecoration(
             labelStyle: MyConstant().h3Style(),
             labelText: 'Phone :',
@@ -327,6 +383,11 @@ Row buildUser(double size) {
         margin: EdgeInsets.only(top: 10),
         width: size * 0.6,
         child: TextFormField(
+          validator: (value) {
+            if (value!.isEmpty) {
+              return 'กรุณาป้อน User Login ด้วย';
+            } else {}
+          },
           decoration: InputDecoration(
             labelStyle: MyConstant().h3Style(),
             labelText: 'User :',
@@ -354,6 +415,11 @@ Row buildPassword(double size) {
         margin: EdgeInsets.only(top: 10),
         width: size * 0.6,
         child: TextFormField(
+          validator: (value) {
+            if (value!.isEmpty) {
+              return 'กรุณาป้อน Password ด้วย';
+            } else {}
+          },
           decoration: InputDecoration(
             labelStyle: MyConstant().h3Style(),
             labelText: 'Password :',
@@ -381,6 +447,11 @@ Row buildAddress(double size) {
         margin: EdgeInsets.only(top: 10),
         width: size * 0.6,
         child: TextFormField(
+          validator: (value) {
+            if (value!.isEmpty) {
+              return 'กรุณาป้อน Address ด้วย';
+            } else {}
+          },
           maxLines: 3,
           decoration: InputDecoration(
             hintText: 'Address :',
