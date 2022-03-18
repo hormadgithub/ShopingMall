@@ -34,9 +34,16 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
+  #สำหรับเลือกรูปภาพ
   image_picker: ^0.8.4+11
+  #สำหรับ Get ค่า Location
   geolocator: ^8.2.0
+  #ใช้แสดงแผนที่
   google_maps_flutter: ^2.1.2
+  #API
+  dio: ^4.0.4
+  #สำหรับฝั่งข้อมูลไว้ในเครื่องเพื่อสามารถเอามาเช็คภายหลังได้ ประมาณ cookie
+  shared_preferences: ^2.0.13
 
 dev_dependencies:
   flutter_test:
