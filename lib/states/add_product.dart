@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shoppingmall/widgets/show_image.dart';
+import 'package:shoppingmall/widgets/show_title.dart';
 
 import '../utility/my_constant.dart';
 
@@ -56,6 +58,38 @@ class _AddProductState extends State<AddProduct> {
     );
   }
 
+  Future<Null> chooeSourceImageDialog(int index) async {
+    print('Click From index ==>> $index');
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: ListTile(
+          leading: ShowImage(path: MyConstant.image4),
+          title: ShowTitle(
+              title: 'Source Image${index + 1}?',
+              textStyle: MyConstant().h2Style()),
+          subtitle: ShowTitle(
+              title: 'Please Tab Camera or Gallery',
+              textStyle: MyConstant().h3Style()),
+        ),
+        actions: [
+          Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Cemera'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Gallery'),
+              ),
+            ],
+          ),          
+        ],
+      ),
+    );
+  }
+
   Column buildImage(BoxConstraints constraints) {
     return Column(
       children: [
@@ -72,22 +106,34 @@ class _AddProductState extends State<AddProduct> {
               Container(
                 height: 48,
                 width: 48,
-                child: Image.asset(MyConstant.image5),
+                child: InkWell(
+                  onTap: () => chooeSourceImageDialog(0),
+                  child: Image.asset(MyConstant.image5),
+                ),
               ),
               Container(
                 height: 48,
                 width: 48,
-                child: Image.asset(MyConstant.image5),
+                child: InkWell(
+                  onTap: () => chooeSourceImageDialog(1),
+                  child: Image.asset(MyConstant.image5),
+                ),
               ),
               Container(
                 height: 48,
                 width: 48,
-                child: Image.asset(MyConstant.image5),
+                child: InkWell(
+                  onTap: () => chooeSourceImageDialog(2),
+                  child: Image.asset(MyConstant.image5),
+                ),
               ),
               Container(
                 height: 48,
                 width: 48,
-                child: Image.asset(MyConstant.image5),
+                child: InkWell(
+                  onTap: () => chooeSourceImageDialog(3),
+                  child: Image.asset(MyConstant.image5),
+                ),
               ),
             ],
           ),
@@ -157,7 +203,7 @@ class _AddProductState extends State<AddProduct> {
           errorBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Colors.red),
             borderRadius: BorderRadius.circular(30),
-          ),          
+          ),
         ),
       ),
     );
@@ -194,7 +240,7 @@ class _AddProductState extends State<AddProduct> {
           errorBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Colors.red),
             borderRadius: BorderRadius.circular(30),
-          ),          
+          ),
         ),
       ),
     );
