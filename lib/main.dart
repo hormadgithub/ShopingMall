@@ -23,7 +23,7 @@ String? initlalRoute;
 // ทำงานใน Thead ให้เสร็จก่อน
 Future<Null> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SharedPreferences preferences = await SharedPreferences.getInstance();
+  SharedPreferences preferences = await SharedPreferences.getInstance(); //อ่านค่าที่เก็บไว้มาเพื่อตรวจสอบ
   String? type = preferences.getString('type');
   print('### type ==>> $type');
   if (type?.isEmpty ?? true) {

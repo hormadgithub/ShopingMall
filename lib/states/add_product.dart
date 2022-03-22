@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:shoppingmall/widgets/show_image.dart';
 import 'package:shoppingmall/widgets/show_title.dart';
 
@@ -13,6 +16,21 @@ class AddProduct extends StatefulWidget {
 
 class _AddProductState extends State<AddProduct> {
   final formKey = GlobalKey<FormState>();
+  List<File?> files = [];
+  File? file;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    initalFile();
+  }
+
+  void initalFile() {
+    for (var i = 0; i < 4; i++) {
+      files.add(null); //กำหนดให้ค่าเริ่มตันเป็น Null ก่อน
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,6 +76,20 @@ class _AddProductState extends State<AddProduct> {
     );
   }
 
+  Future<Null> processImagePicker(ImageSource source, int index) async {
+    try {
+      var result = await ImagePicker().getImage(
+        source: source,
+        maxWidth: 800,
+        maxHeight: 800,
+      );
+      setState(() {
+        file = File(result!.path);
+        files[index] = file;
+      });
+    } catch (e) {}
+  }
+
   Future<Null> chooeSourceImageDialog(int index) async {
     print('Click From index ==>> $index');
     showDialog(
@@ -73,18 +105,25 @@ class _AddProductState extends State<AddProduct> {
               textStyle: MyConstant().h3Style()),
         ),
         actions: [
-          Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               TextButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: () {
+                  Navigator.pop(context);
+                  processImagePicker(ImageSource.camera, index);
+                },
                 child: Text('Cemera'),
               ),
               TextButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: () {
+                  Navigator.pop(context);
+                  processImagePicker(ImageSource.gallery, index);
+                },
                 child: Text('Gallery'),
               ),
             ],
-          ),          
+          ),
         ],
       ),
     );
@@ -94,10 +133,11 @@ class _AddProductState extends State<AddProduct> {
     return Column(
       children: [
         Container(
-          height: constraints.maxWidth * 0.70,
-          width: constraints.maxWidth * 0.70,
-          child: Image.asset(MyConstant.image5),
-        ),
+            height: constraints.maxWidth * 0.70,
+            width: constraints.maxWidth * 0.70,
+            child: file == null
+                ? Image.asset(MyConstant.image5)
+                : Image.file(file!)),
         Container(
           width: constraints.maxWidth * 0.7,
           child: Row(
@@ -108,7 +148,12 @@ class _AddProductState extends State<AddProduct> {
                 width: 48,
                 child: InkWell(
                   onTap: () => chooeSourceImageDialog(0),
-                  child: Image.asset(MyConstant.image5),
+                  child: files[0] == null
+                      ? Image.asset(MyConstant.image5)
+                      : Image.file(
+                          files[0]!,
+                          fit: BoxFit.cover,
+                        ),
                 ),
               ),
               Container(
@@ -116,7 +161,12 @@ class _AddProductState extends State<AddProduct> {
                 width: 48,
                 child: InkWell(
                   onTap: () => chooeSourceImageDialog(1),
-                  child: Image.asset(MyConstant.image5),
+                  child: files[1] == null
+                      ? Image.asset(MyConstant.image5)
+                      : Image.file(
+                          files[1]!,
+                          fit: BoxFit.cover,
+                        ),
                 ),
               ),
               Container(
@@ -124,7 +174,12 @@ class _AddProductState extends State<AddProduct> {
                 width: 48,
                 child: InkWell(
                   onTap: () => chooeSourceImageDialog(2),
-                  child: Image.asset(MyConstant.image5),
+                  child: files[2] == null
+                      ? Image.asset(MyConstant.image5)
+                      : Image.file(
+                          files[2]!,
+                          fit: BoxFit.cover,
+                        ),
                 ),
               ),
               Container(
@@ -132,7 +187,12 @@ class _AddProductState extends State<AddProduct> {
                 width: 48,
                 child: InkWell(
                   onTap: () => chooeSourceImageDialog(3),
-                  child: Image.asset(MyConstant.image5),
+                  child: files[3] == null
+                      ? Image.asset(MyConstant.image5)
+                      : Image.file(
+                          files[3]!,
+                          fit: BoxFit.cover,
+                        ),
                 ),
               ),
             ],
